@@ -1,0 +1,12 @@
+{
+  "files": [
+    "apps/web/src/modules/auth/AuthPage.tsx",
+    "apps/web/src/modules/auth/brand-access.css",
+    "apps/web/public/brand/charme-total-transparent.webp"
+  ],
+  "sha256": {
+    "AuthPage.tsx": "bf7c042693cd7d34ca9c21a6b8a0a687399746640b61a632d8cac22a379b30b0",
+    "brand-access.css": "d405b522aa1e11aabe1fc9618d075099d6149dcf2224634843adc4d9daa7cc20",
+    "charme-total-transparent.webp": "9a6a67855789b1a1e1bc8e2408011475ea44f05c2e4692c267631de91a2ab7eb"
+  }
+}

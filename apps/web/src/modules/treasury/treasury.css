@@ -1,0 +1,96 @@
+.treasury-scope {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #737c89;
+  font-size: 11px;
+}
+.treasury-scope > span:last-child {
+  margin-left: auto;
+  font-size: 10px;
+}
+.treasury-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.treasury-metrics > div:first-child {
+  background: #fcf7f8;
+}
+.treasury-metrics > div:first-child strong {
+  color: #794752;
+}
+.treasury-metrics > div:first-child strong.negative {
+  color: #963638;
+}
+.treasury-in {
+  color: #386a4a;
+}
+.treasury-reference {
+  font-size: 10px;
+  color: #8a929d;
+  margin: -7px 0 17px;
+}
+.treasury-toolbar {
+  flex-wrap: wrap;
+}
+.treasury-toolbar label {
+  min-width: 110px;
+  max-width: 210px;
+}
+.treasury-toolbar input[type='date'] {
+  width: 140px;
+}
+.treasury-money {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.treasury-row-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  color: #959ca5;
+}
+.treasury-explanation {
+  margin: 12px 0 18px;
+  max-width: 1000px;
+  font-size: 10px;
+  color: #8c949f;
+  line-height: 1.6;
+}
+.treasury-methods {
+  max-width: 650px;
+}
+.treasury-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  width: min(440px, calc(100vw - 30px));
+  max-height: calc(100svh - 30px);
+  overflow: auto;
+  border: 1px solid #a8afb8;
+  border-radius: 5px;
+  background: #fff;
+  color: #30343b;
+  box-shadow: 0 15px 50px #17203238;
+}
+.treasury-dialog::backdrop {
+  background: #20232a55;
+}
+.treasury-dialog-fields {
+  padding: 18px 22px;
+  display: grid;
+  gap: 15px;
+}
+.treasury-dialog-fields > p {
+  color: #7b8491;
+  font-size: 11px;
+  line-height: 1.6;
+}
+@media (max-width: 800px) {
+  .treasury-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .treasury-scope > span:last-child {
+    display: none;
+  }
+}

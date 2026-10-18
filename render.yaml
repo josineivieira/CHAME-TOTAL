@@ -1,0 +1,29 @@
+# Utilize o PostgreSQL existente. Credenciais sao configuradas no painel Render.
+services:
+  - type: web
+    name: chame-total
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: npm ci --include=dev && npm run build
+    preDeployCommand: npm run db:migrate
+    startCommand: npm run start --workspace @chame/api
+    healthCheckPath: /api/v1/health/ready
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_VERSION
+        value: 24.20.0
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SCHEMA
+        value: public
+      - key: APP_ORIGIN
+        sync: false
+      - key: MFA_ENCRYPTION_KEY
+        sync: false
+      - key: BOOTSTRAP_TOKEN
+        generateValue: true
+      - key: SESSION_HOURS
+        value: 8

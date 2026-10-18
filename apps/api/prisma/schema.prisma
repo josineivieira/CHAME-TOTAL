@@ -1,0 +1,807 @@
+generator client {
+ provider = "prisma-client"
+ output = "../src/generated/prisma"
+ moduleFormat = "cjs"
+ engineType = "client"
+}
+datasource db {
+ provider = "postgresql"
+ url = env("DATABASE_URL")
+}
+model Company {
+ staffAdvanceAllocations StaffAdvanceAllocation[]
+ purchaseIssues PurchaseIssue[]
+ treasuryBaseline TreasuryBaseline?
+ treasuryEntries TreasuryEntry[]
+ id String @id @default(uuid()) @db.Uuid
+ name String
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ // Referential relations
+ storeByCompany Store[] @relation("Store_company_fk")
+ settingByCompany Setting? @relation("Setting_company_fk")
+ roleByCompany Role[] @relation("Role_company_fk")
+ userByCompany User[] @relation("User_company_fk")
+ customerByCompany Customer[] @relation("Customer_company_fk")
+ employeeByCompany Employee[] @relation("Employee_company_fk")
+ categoryByCompany Category[] @relation("Category_company_fk")
+ supplierByCompany Supplier[] @relation("Supplier_company_fk")
+ productByCompany Product[] @relation("Product_company_fk")
+ stockBalanceByCompany StockBalance[] @relation("StockBalance_company_fk")
+ stockMovementByCompany StockMovement[] @relation("StockMovement_company_fk")
+ saleByCompany Sale[] @relation("Sale_company_fk")
+ saleItemByCompany SaleItem[] @relation("SaleItem_company_fk")
+ salePaymentByCompany SalePayment[] @relation("SalePayment_company_fk")
+ saleReturnByCompany SaleReturn[] @relation("SaleReturn_company_fk")
+ saleReturnItemByCompany SaleReturnItem[] @relation("SaleReturnItem_company_fk")
+ cashSessionByCompany CashSession[] @relation("CashSession_company_fk")
+ cashMovementByCompany CashMovement[] @relation("CashMovement_company_fk")
+ financialEntryByCompany FinancialEntry[] @relation("FinancialEntry_company_fk")
+ financialSettlementByCompany FinancialSettlement[] @relation("FinancialSettlement_company_fk")
+ commissionEntryByCompany CommissionEntry[] @relation("CommissionEntry_company_fk")
+ commissionSettlementByCompany CommissionSettlement[] @relation("CommissionSettlement_company_fk")
+ salesGoalByCompany SalesGoal[] @relation("SalesGoal_company_fk")
+ purchaseOrderByCompany PurchaseOrder[] @relation("PurchaseOrder_company_fk")
+ purchaseOrderItemByCompany PurchaseOrderItem[] @relation("PurchaseOrderItem_company_fk")
+ goodsReceiptByCompany GoodsReceipt[] @relation("GoodsReceipt_company_fk")
+ goodsReceiptItemByCompany GoodsReceiptItem[] @relation("GoodsReceiptItem_company_fk")
+ auditLogByCompany AuditLog[] @relation("AuditLog_company_fk")
+ idempotencyRecordByCompany IdempotencyRecord[] @relation("IdempotencyRecord_company_fk")
+ notificationByCompany Notification[] @relation("Notification_company_fk")
+ loyaltyTransactionByCompany LoyaltyTransaction[] @relation("LoyaltyTransaction_company_fk")
+ quotationByCompany Quotation[] @relation("Quotation_company_fk")
+}
+model Store {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ name String
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ // Referential relations
+ company Company @relation("Store_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Store_company_fk")
+ userByStore User[] @relation("User_storeId_fk")
+ stockBalanceByStore StockBalance[] @relation("StockBalance_storeId_fk")
+ stockMovementByStore StockMovement[] @relation("StockMovement_storeId_fk")
+ saleByStore Sale[] @relation("Sale_storeId_fk")
+ cashSessionByStore CashSession[] @relation("CashSession_storeId_fk")
+ financialEntryByStore FinancialEntry[] @relation("FinancialEntry_storeId_fk")
+ commissionEntryByStore CommissionEntry[] @relation("CommissionEntry_storeId_fk")
+ salesGoalByStore SalesGoal[] @relation("SalesGoal_storeId_fk")
+ purchaseOrderByStore PurchaseOrder[] @relation("PurchaseOrder_storeId_fk")
+ quotationByStore Quotation[] @relation("Quotation_storeId_fk")
+}
+model Setting {
+ companyId String @id @db.Uuid
+ companyName String @default("CHAME TOTAL")
+ legalName String @default("")
+ document String @default("")
+ phone String @default("")
+ email String @default("")
+ address String @default("")
+ timezone String @default("America/Sao_Paulo")
+ maxDiscountPercent Int @default(10)
+ loyaltyPointsPerReal Int @default(1)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ // Referential relations
+ company Company @relation("Setting_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Setting_company_fk")
+}
+model Role {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ name String
+ @@unique([companyId,name])
+ @@unique([companyId,id])
+ // Referential relations
+ company Company @relation("Role_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Role_company_fk")
+ rolePermissionByRole RolePermission[] @relation("role_permission_role_fk")
+ userRoleByRole UserRole[] @relation("user_role_role_fk")
+}
+model Permission {
+ key String @id
+ // Referential relations
+ rolePermissionByPermission RolePermission[] @relation("role_permission_key_fk")
+}
+model RolePermission {
+ roleId String @db.Uuid
+ permissionKey String
+ @@id([roleId,permissionKey])
+ // Referential relations
+ role Role @relation("role_permission_role_fk", fields: [roleId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "role_permission_role_fk")
+ permission Permission @relation("role_permission_key_fk", fields: [permissionKey], references: [key], onDelete: Restrict, onUpdate: NoAction, map: "role_permission_key_fk")
+}
+model UserRole {
+ userId String @db.Uuid
+ roleId String @db.Uuid
+ @@id([userId,roleId])
+ // Referential relations
+ user User @relation("user_role_user_fk", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "user_role_user_fk")
+ role Role @relation("user_role_role_fk", fields: [roleId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "user_role_role_fk")
+}
+model User {
+ staffAdvanceAllocations StaffAdvanceAllocation[]
+ purchaseIssues PurchaseIssue[]
+ treasuryBaseline TreasuryBaseline[]
+ treasuryEntries TreasuryEntry[]
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ employeeId String? @db.Uuid
+ name String
+ email String @unique
+ avatarData String?
+ passwordHash String
+ active Boolean @default(true)
+ mfaRequired Boolean @default(false)
+ mfaSecret String?
+ mfaPendingSecret String?
+ lastLoginAt DateTime? @db.Timestamptz(3)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@unique([companyId,id])
+ // Referential relations
+ company Company @relation("User_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "User_company_fk")
+ store Store @relation("User_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "User_storeId_fk")
+ employee Employee? @relation("User_employeeId_fk", fields: [companyId, employeeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "User_employeeId_fk")
+ stockMovementByUser StockMovement[] @relation("StockMovement_userId_fk")
+ saleByUser Sale[] @relation("Sale_userId_fk")
+ saleReturnByUser SaleReturn[] @relation("SaleReturn_userId_fk")
+ cashSessionByUser CashSession[] @relation("CashSession_userId_fk")
+ cashMovementByUser CashMovement[] @relation("CashMovement_userId_fk")
+ financialEntryByUser FinancialEntry[] @relation("FinancialEntry_userId_fk")
+ financialSettlementByUser FinancialSettlement[] @relation("FinancialSettlement_userId_fk")
+ commissionSettlementByUser CommissionSettlement[] @relation("CommissionSettlement_userId_fk")
+ purchaseOrderByUser PurchaseOrder[] @relation("PurchaseOrder_userId_fk")
+ goodsReceiptByUser GoodsReceipt[] @relation("GoodsReceipt_userId_fk")
+ auditLogByUser AuditLog[] @relation("AuditLog_userId_fk")
+ idempotencyRecordByUser IdempotencyRecord[] @relation("IdempotencyRecord_userId_fk")
+ notificationByUser Notification[] @relation("Notification_userId_fk")
+ loyaltyTransactionByUser LoyaltyTransaction[] @relation("LoyaltyTransaction_userId_fk")
+ quotationByUser Quotation[] @relation("Quotation_userId_fk")
+ sessionByUser Session[] @relation("session_user_fk")
+ passwordResetTokenByUser PasswordResetToken[] @relation("reset_user_fk")
+ mfaRecoveryCodeByUser MfaRecoveryCode[] @relation("mfa_user_fk")
+ userRoleByUser UserRole[] @relation("user_role_user_fk")
+}
+model Session {
+ id String @id @default(uuid()) @db.Uuid
+ userId String @db.Uuid
+ tokenHash String @unique
+ csrfToken String
+ expiresAt DateTime @db.Timestamptz(3)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ lastSeenAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([userId])
+ @@index([expiresAt])
+ // Referential relations
+ user User @relation("session_user_fk", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "session_user_fk")
+}
+model PasswordResetToken {
+ id String @id @default(uuid()) @db.Uuid
+ userId String @db.Uuid
+ tokenHash String @unique
+ expiresAt DateTime @db.Timestamptz(3)
+ usedAt DateTime? @db.Timestamptz(3)
+ // Referential relations
+ user User @relation("reset_user_fk", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "reset_user_fk")
+}
+model MfaRecoveryCode {
+ id String @id @default(uuid()) @db.Uuid
+ userId String @db.Uuid
+ codeHash String @unique
+ usedAt DateTime? @db.Timestamptz(3)
+ // Referential relations
+ user User @relation("mfa_user_fk", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "mfa_user_fk")
+}
+model LoginAttempt {
+ key String @id
+ count Int @default(0)
+ expiresAt DateTime @db.Timestamptz(3)
+ // Referential relations
+
+}
+model Customer {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ code Int @default(autoincrement())
+ name String
+ cpf String?
+ phone String?
+ whatsapp String?
+ email String?
+ birthDate DateTime? @db.Date
+ address String?
+ city String?
+ state String?
+ postalCode String?
+ notes String?
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@unique([companyId,cpf])
+ @@index([companyId,name])
+ // Referential relations
+ company Company @relation("Customer_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Customer_company_fk")
+ saleByCustomer Sale[] @relation("Sale_customerId_fk")
+ loyaltyTransactionByCustomer LoyaltyTransaction[] @relation("LoyaltyTransaction_customerId_fk")
+ quotationByCustomer Quotation[] @relation("Quotation_customerId_fk")
+}
+model Employee {
+ staffFinancialEntries FinancialEntry[]
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ code Int @default(autoincrement())
+ name String
+ phone String?
+ jobTitle String @default("Vendedora")
+ commissionPercent Decimal @default(0) @db.Decimal(9,4)
+ hiredAt DateTime? @db.Date
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,name])
+ // Referential relations
+ company Company @relation("Employee_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Employee_company_fk")
+ userByEmployee User[] @relation("User_employeeId_fk")
+ saleByEmployee Sale[] @relation("Sale_employeeId_fk")
+ commissionEntryByEmployee CommissionEntry[] @relation("CommissionEntry_employeeId_fk")
+ commissionSettlementByEmployee CommissionSettlement[] @relation("CommissionSettlement_employeeId_fk")
+ salesGoalByEmployee SalesGoal[] @relation("SalesGoal_employeeId_fk")
+ quotationByEmployee Quotation[] @relation("Quotation_employeeId_fk")
+}
+model Category {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ name String
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@unique([companyId,name])
+ @@unique([companyId,id])
+ // Referential relations
+ company Company @relation("Category_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Category_company_fk")
+ productByCategory Product[] @relation("Product_categoryId_fk")
+}
+model Supplier {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ code Int @default(autoincrement())
+ name String
+ document String?
+ contact String?
+ email String?
+ address String?
+ notes String?
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,name])
+ // Referential relations
+ company Company @relation("Supplier_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Supplier_company_fk")
+ productBySupplier Product[] @relation("Product_supplierId_fk")
+ purchaseOrderBySupplier PurchaseOrder[] @relation("PurchaseOrder_supplierId_fk")
+}
+model Product {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ name String
+ sku String
+ barcode String?
+ description String?
+ categoryId String? @db.Uuid
+ supplierId String? @db.Uuid
+ brand String?
+ cost Decimal @db.Decimal(19,6)
+ price Decimal @db.Decimal(19,2)
+ minStock Decimal @default(0) @db.Decimal(18,3)
+ unit String @default("UN")
+ variantAttributes Json @default("{}")
+ active Boolean @default(true)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@unique([companyId,sku])
+ @@unique([companyId,barcode])
+ @@index([companyId,name])
+ // Referential relations
+ company Company @relation("Product_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Product_company_fk")
+ category Category? @relation("Product_categoryId_fk", fields: [companyId, categoryId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Product_categoryId_fk")
+ supplier Supplier? @relation("Product_supplierId_fk", fields: [companyId, supplierId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Product_supplierId_fk")
+ stockBalanceByProduct StockBalance[] @relation("StockBalance_productId_fk")
+ stockMovementByProduct StockMovement[] @relation("StockMovement_productId_fk")
+ saleItemByProduct SaleItem[] @relation("SaleItem_productId_fk")
+ purchaseOrderItemByProduct PurchaseOrderItem[] @relation("PurchaseOrderItem_productId_fk")
+}
+model StockBalance {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ productId String @db.Uuid
+ quantity Decimal @default(0) @db.Decimal(18,3)
+ reserved Decimal @default(0) @db.Decimal(18,3)
+ @@unique([storeId,productId])
+ @@index([companyId,storeId])
+ // Referential relations
+ company Company @relation("StockBalance_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "StockBalance_company_fk")
+ store Store @relation("StockBalance_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "StockBalance_storeId_fk")
+ product Product @relation("StockBalance_productId_fk", fields: [companyId, productId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "StockBalance_productId_fk")
+}
+model StockMovement {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ productId String @db.Uuid
+ quantity Decimal @db.Decimal(18,3)
+ type String
+ referenceId String? @db.Uuid
+ reason String
+ userId String @db.Uuid
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([companyId,storeId,createdAt])
+ @@index([productId,createdAt])
+ // Referential relations
+ company Company @relation("StockMovement_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "StockMovement_company_fk")
+ store Store @relation("StockMovement_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "StockMovement_storeId_fk")
+ product Product @relation("StockMovement_productId_fk", fields: [companyId, productId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "StockMovement_productId_fk")
+ user User @relation("StockMovement_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "StockMovement_userId_fk")
+}
+model Sale {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ code Int @default(autoincrement())
+ customerId String? @db.Uuid
+ employeeId String @db.Uuid
+ userId String @db.Uuid
+ cashSessionId String @db.Uuid
+ status String @default("CONFIRMED")
+ subtotal Decimal @db.Decimal(19,2)
+ discount Decimal @db.Decimal(19,2)
+ total Decimal @db.Decimal(19,2)
+ costTotal Decimal @db.Decimal(19,2)
+ returnedTotal Decimal @default(0) @db.Decimal(19,2)
+ commissionPercent Decimal @db.Decimal(9,4)
+ notes String?
+ cancelledAt DateTime? @db.Timestamptz(3)
+ cancelReason String?
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,storeId,createdAt])
+ @@index([employeeId,createdAt])
+ // Referential relations
+ company Company @relation("Sale_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Sale_company_fk")
+ store Store @relation("Sale_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Sale_storeId_fk")
+ employee Employee @relation("Sale_employeeId_fk", fields: [companyId, employeeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Sale_employeeId_fk")
+ customer Customer? @relation("Sale_customerId_fk", fields: [companyId, customerId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Sale_customerId_fk")
+ user User @relation("Sale_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Sale_userId_fk")
+ cashSession CashSession @relation("Sale_cashSessionId_fk", fields: [companyId, cashSessionId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Sale_cashSessionId_fk")
+ saleItemBySale SaleItem[] @relation("SaleItem_saleId_fk")
+ salePaymentBySale SalePayment[] @relation("SalePayment_saleId_fk")
+ saleReturnBySale SaleReturn[] @relation("SaleReturn_saleId_fk")
+ commissionEntryBySale CommissionEntry[] @relation("CommissionEntry_saleId_fk")
+ loyaltyTransactionBySale LoyaltyTransaction[] @relation("LoyaltyTransaction_saleId_fk")
+ quotationBySale Quotation[] @relation("Quotation_saleId_fk")
+}
+model SaleItem {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ saleId String @db.Uuid
+ productId String @db.Uuid
+ name String
+ sku String
+ quantity Decimal @db.Decimal(18,3)
+ returnedQuantity Decimal @default(0) @db.Decimal(18,3)
+ unitPrice Decimal @db.Decimal(19,2)
+ unitCost Decimal @db.Decimal(19,6)
+ discount Decimal @db.Decimal(19,2)
+ total Decimal @db.Decimal(19,2)
+ @@unique([companyId,id])
+ @@index([saleId])
+ // Referential relations
+ company Company @relation("SaleItem_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "SaleItem_company_fk")
+ sale Sale @relation("SaleItem_saleId_fk", fields: [companyId, saleId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SaleItem_saleId_fk")
+ product Product @relation("SaleItem_productId_fk", fields: [companyId, productId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SaleItem_productId_fk")
+ saleReturnItemBySaleItem SaleReturnItem[] @relation("SaleReturnItem_saleItemId_fk")
+}
+model SalePayment {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ saleId String @db.Uuid
+ method String
+ amount Decimal @db.Decimal(19,2)
+ @@index([saleId])
+ // Referential relations
+ company Company @relation("SalePayment_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "SalePayment_company_fk")
+ sale Sale @relation("SalePayment_saleId_fk", fields: [companyId, saleId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SalePayment_saleId_fk")
+}
+model SaleReturn {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ saleId String @db.Uuid
+ userId String @db.Uuid
+ reason String
+ total Decimal @db.Decimal(19,2)
+ refundMethod String
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([saleId])
+ // Referential relations
+ company Company @relation("SaleReturn_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "SaleReturn_company_fk")
+ sale Sale @relation("SaleReturn_saleId_fk", fields: [companyId, saleId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SaleReturn_saleId_fk")
+ user User @relation("SaleReturn_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SaleReturn_userId_fk")
+ saleReturnItemByReturn SaleReturnItem[] @relation("SaleReturnItem_returnId_fk")
+}
+model SaleReturnItem {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ returnId String @db.Uuid
+ saleItemId String @db.Uuid
+ quantity Decimal @db.Decimal(18,3)
+ total Decimal @db.Decimal(19,2)
+ restock Boolean
+ // Referential relations
+ company Company @relation("SaleReturnItem_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "SaleReturnItem_company_fk")
+ return SaleReturn @relation("SaleReturnItem_returnId_fk", fields: [companyId, returnId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SaleReturnItem_returnId_fk")
+ saleItem SaleItem @relation("SaleReturnItem_saleItemId_fk", fields: [companyId, saleItemId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SaleReturnItem_saleItemId_fk")
+}
+model CashSession {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ userId String @db.Uuid
+ status String @default("OPEN")
+ openingAmount Decimal @db.Decimal(19,2)
+ expectedAmount Decimal? @db.Decimal(19,2)
+ countedAmount Decimal? @db.Decimal(19,2)
+ difference Decimal? @db.Decimal(19,2)
+ justification String?
+ openedAt DateTime @default(now()) @db.Timestamptz(3)
+ closedAt DateTime? @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,storeId,status])
+ // Referential relations
+ company Company @relation("CashSession_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "CashSession_company_fk")
+ saleByCashSession Sale[] @relation("Sale_cashSessionId_fk")
+ store Store @relation("CashSession_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CashSession_storeId_fk")
+ user User @relation("CashSession_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CashSession_userId_fk")
+ cashMovementByCashSession CashMovement[] @relation("CashMovement_cashSessionId_fk")
+}
+model CashMovement {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ cashSessionId String @db.Uuid
+ userId String @db.Uuid
+ type String
+ method String @default("CASH")
+ amount Decimal @db.Decimal(19,2)
+ reason String
+ referenceId String? @db.Uuid
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([cashSessionId,createdAt])
+ // Referential relations
+ company Company @relation("CashMovement_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "CashMovement_company_fk")
+ cashSession CashSession @relation("CashMovement_cashSessionId_fk", fields: [companyId, cashSessionId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CashMovement_cashSessionId_fk")
+ user User @relation("CashMovement_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CashMovement_userId_fk")
+}
+model FinancialEntry {
+ employeeId String? @db.Uuid
+ staffType String?
+ competenceDate DateTime? @db.Date
+ resultGroup String @default("OPERATING")
+ cancelledAt DateTime? @db.Timestamptz(3)
+ cancelReason String?
+ staffEmployee Employee? @relation(fields:[companyId,employeeId],references:[companyId,id],onDelete:Restrict,onUpdate:NoAction)
+ advancesUsed StaffAdvanceAllocation[] @relation("StaffAdvanceSource")
+ salaryAdvances StaffAdvanceAllocation[] @relation("StaffAdvanceTarget")
+ @@index([companyId,storeId,employeeId,competenceDate])
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ userId String @db.Uuid
+ direction String
+ description String
+ amount Decimal @db.Decimal(19,2)
+ settledAmount Decimal @default(0) @db.Decimal(19,2)
+ dueDate DateTime @db.Date
+ category String
+ costCenter String @default("Loja")
+ status String @default("OPEN")
+ source String @default("MANUAL")
+ referenceId String? @db.Uuid
+ notes String?
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,storeId,dueDate,status])
+ // Referential relations
+ company Company @relation("FinancialEntry_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "FinancialEntry_company_fk")
+ store Store @relation("FinancialEntry_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "FinancialEntry_storeId_fk")
+ user User @relation("FinancialEntry_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "FinancialEntry_userId_fk")
+ financialSettlementByEntry FinancialSettlement[] @relation("FinancialSettlement_entryId_fk")
+}
+model FinancialSettlement {
+ @@unique([companyId,id])
+ staffAdvanceAllocations StaffAdvanceAllocation[]
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ entryId String @db.Uuid
+ amount Decimal @db.Decimal(19,2)
+ userId String @db.Uuid
+ method String
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([entryId])
+ // Referential relations
+ company Company @relation("FinancialSettlement_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "FinancialSettlement_company_fk")
+ entry FinancialEntry @relation("FinancialSettlement_entryId_fk", fields: [companyId, entryId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "FinancialSettlement_entryId_fk")
+ user User @relation("FinancialSettlement_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "FinancialSettlement_userId_fk")
+}
+model CommissionEntry {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ employeeId String @db.Uuid
+ saleId String @db.Uuid
+ sourceId String @unique @db.Uuid
+ amount Decimal @db.Decimal(19,2)
+ status String @default("PENDING")
+ paidAt DateTime? @db.Timestamptz(3)
+ settlementId String? @db.Uuid
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([companyId,storeId,employeeId,status])
+ // Referential relations
+ company Company @relation("CommissionEntry_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionEntry_company_fk")
+ store Store @relation("CommissionEntry_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionEntry_storeId_fk")
+ employee Employee @relation("CommissionEntry_employeeId_fk", fields: [companyId, employeeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionEntry_employeeId_fk")
+ sale Sale @relation("CommissionEntry_saleId_fk", fields: [companyId, saleId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionEntry_saleId_fk")
+ settlement CommissionSettlement? @relation("CommissionEntry_settlementId_fk", fields: [companyId, settlementId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionEntry_settlementId_fk")
+}
+model CommissionSettlement {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ employeeId String @db.Uuid
+ userId String @db.Uuid
+ total Decimal @db.Decimal(19,2)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ // Referential relations
+ company Company @relation("CommissionSettlement_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionSettlement_company_fk")
+ commissionEntryBySettlement CommissionEntry[] @relation("CommissionEntry_settlementId_fk")
+ employee Employee @relation("CommissionSettlement_employeeId_fk", fields: [companyId, employeeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionSettlement_employeeId_fk")
+ user User @relation("CommissionSettlement_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "CommissionSettlement_userId_fk")
+}
+model SalesGoal {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ employeeId String? @db.Uuid
+ period String
+ amount Decimal @db.Decimal(19,2)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ @@index([companyId,storeId,period])
+ // Referential relations
+ company Company @relation("SalesGoal_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "SalesGoal_company_fk")
+ store Store @relation("SalesGoal_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SalesGoal_storeId_fk")
+ employee Employee? @relation("SalesGoal_employeeId_fk", fields: [companyId, employeeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "SalesGoal_employeeId_fk")
+}
+model PurchaseOrder {
+ @@unique([companyId,paymentEntryId])
+ paymentMode String @default("LEGACY")
+ paymentMethod String?
+ paymentEntryId String? @unique @db.Uuid
+ paidAt DateTime? @db.Timestamptz(3)
+ paymentEntry TreasuryEntry? @relation("PurchasePayment", fields: [companyId,paymentEntryId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ supplierId String @db.Uuid
+ userId String @db.Uuid
+ code Int @default(autoincrement())
+ status String @default("APPROVED")
+ total Decimal @db.Decimal(19,2)
+ dueDate DateTime @db.Date
+ notes String?
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,storeId,createdAt])
+ // Referential relations
+ company Company @relation("PurchaseOrder_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrder_company_fk")
+ store Store @relation("PurchaseOrder_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrder_storeId_fk")
+ supplier Supplier @relation("PurchaseOrder_supplierId_fk", fields: [companyId, supplierId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrder_supplierId_fk")
+ user User @relation("PurchaseOrder_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrder_userId_fk")
+ purchaseOrderItemByPurchase PurchaseOrderItem[] @relation("PurchaseOrderItem_purchaseId_fk")
+ goodsReceiptByPurchase GoodsReceipt[] @relation("GoodsReceipt_purchaseId_fk")
+}
+model PurchaseOrderItem {
+ cancelledQuantity Decimal @default(0) @db.Decimal(18,3)
+ purchaseIssues PurchaseIssue[]
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ purchaseId String @db.Uuid
+ productId String @db.Uuid
+ quantity Decimal @db.Decimal(18,3)
+ receivedQuantity Decimal @default(0) @db.Decimal(18,3)
+ unitCost Decimal @db.Decimal(19,6)
+ @@unique([companyId,id])
+ @@index([purchaseId])
+ // Referential relations
+ company Company @relation("PurchaseOrderItem_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrderItem_company_fk")
+ purchase PurchaseOrder @relation("PurchaseOrderItem_purchaseId_fk", fields: [companyId, purchaseId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrderItem_purchaseId_fk")
+ product Product @relation("PurchaseOrderItem_productId_fk", fields: [companyId, productId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "PurchaseOrderItem_productId_fk")
+ goodsReceiptItemByPurchaseItem GoodsReceiptItem[] @relation("GoodsReceiptItem_purchaseItemId_fk")
+}
+model GoodsReceipt {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ purchaseId String @db.Uuid
+ userId String @db.Uuid
+ total Decimal @db.Decimal(19,2)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ // Referential relations
+ company Company @relation("GoodsReceipt_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "GoodsReceipt_company_fk")
+ purchase PurchaseOrder @relation("GoodsReceipt_purchaseId_fk", fields: [companyId, purchaseId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "GoodsReceipt_purchaseId_fk")
+ user User @relation("GoodsReceipt_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "GoodsReceipt_userId_fk")
+ goodsReceiptItemByReceipt GoodsReceiptItem[] @relation("GoodsReceiptItem_receiptId_fk")
+}
+model GoodsReceiptItem {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ receiptId String @db.Uuid
+ purchaseItemId String @db.Uuid
+ quantity Decimal @db.Decimal(18,3)
+ // Referential relations
+ company Company @relation("GoodsReceiptItem_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "GoodsReceiptItem_company_fk")
+ receipt GoodsReceipt @relation("GoodsReceiptItem_receiptId_fk", fields: [companyId, receiptId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "GoodsReceiptItem_receiptId_fk")
+ purchaseItem PurchaseOrderItem @relation("GoodsReceiptItem_purchaseItemId_fk", fields: [companyId, purchaseItemId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "GoodsReceiptItem_purchaseItemId_fk")
+}
+model AuditLog {
+ @@index([companyId,entity,entityId,createdAt,id],map:"AuditLog_record_activity_idx")
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ userId String @db.Uuid
+ action String
+ entity String
+ entityId String?
+ details Json @default("{}")
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([companyId,createdAt])
+ // Referential relations
+ company Company @relation("AuditLog_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "AuditLog_company_fk")
+ user User @relation("AuditLog_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "AuditLog_userId_fk")
+}
+model IdempotencyRecord {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ userId String @db.Uuid
+ operation String
+ key String
+ payloadHash String
+ response Json
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,userId,operation,key])
+ // Referential relations
+ company Company @relation("IdempotencyRecord_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "IdempotencyRecord_company_fk")
+ user User @relation("IdempotencyRecord_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "IdempotencyRecord_userId_fk")
+}
+model Notification {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ userId String @db.Uuid
+ title String
+ message String
+ readAt DateTime? @db.Timestamptz(3)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([companyId,userId,createdAt])
+ // Referential relations
+ company Company @relation("Notification_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Notification_company_fk")
+ user User @relation("Notification_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Notification_userId_fk")
+}
+model LoyaltyTransaction {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ customerId String @db.Uuid
+ saleId String? @db.Uuid
+ userId String @db.Uuid
+ points Int
+ reason String
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@index([companyId,customerId])
+ // Referential relations
+ company Company @relation("LoyaltyTransaction_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "LoyaltyTransaction_company_fk")
+ customer Customer @relation("LoyaltyTransaction_customerId_fk", fields: [companyId, customerId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "LoyaltyTransaction_customerId_fk")
+ sale Sale? @relation("LoyaltyTransaction_saleId_fk", fields: [companyId, saleId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "LoyaltyTransaction_saleId_fk")
+ user User @relation("LoyaltyTransaction_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "LoyaltyTransaction_userId_fk")
+}
+model Quotation {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ storeId String @db.Uuid
+ userId String @db.Uuid
+ customerId String? @db.Uuid
+ employeeId String @db.Uuid
+ status String @default("PENDING")
+ saleId String? @unique @db.Uuid
+ payload Json
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@index([companyId,storeId,createdAt])
+ // Referential relations
+ company Company @relation("Quotation_company_fk", fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "Quotation_company_fk")
+ store Store @relation("Quotation_storeId_fk", fields: [companyId, storeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Quotation_storeId_fk")
+ user User @relation("Quotation_userId_fk", fields: [companyId, userId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Quotation_userId_fk")
+ customer Customer? @relation("Quotation_customerId_fk", fields: [companyId, customerId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Quotation_customerId_fk")
+ employee Employee @relation("Quotation_employeeId_fk", fields: [companyId, employeeId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Quotation_employeeId_fk")
+ sale Sale? @relation("Quotation_saleId_fk", fields: [companyId, saleId], references: [companyId, id], onDelete: Restrict, onUpdate: NoAction, map: "Quotation_saleId_fk")
+}
+model TreasuryBaseline {
+ companyId String @id @db.Uuid
+ amount Decimal @db.Decimal(19,2)
+ startsAt DateTime @db.Timestamptz(3)
+ userId String @db.Uuid
+ reason String
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ company Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+ user User @relation(fields: [companyId,userId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+}
+model TreasuryEntry {
+ purchasePayment PurchaseOrder? @relation("PurchasePayment")
+ purchaseRefund PurchaseIssue? @relation("PurchaseRefund")
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ userId String @db.Uuid
+ amount Decimal @db.Decimal(19,2)
+ method String
+ description String
+ kind String @default("MANUAL")
+ reversesId String? @unique @db.Uuid
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ @@unique([companyId,id])
+ @@unique([companyId,reversesId])
+ @@index([companyId,createdAt,id])
+ company Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+ user User @relation(fields: [companyId,userId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+ original TreasuryEntry? @relation("TreasuryReversal", fields: [companyId,reversesId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+ reversal TreasuryEntry? @relation("TreasuryReversal")
+}
+
+model PurchaseIssue {
+ @@unique([companyId,refundEntryId])
+ refundEntryId String? @unique @db.Uuid
+ refundMethod String?
+ refundEntry TreasuryEntry? @relation("PurchaseRefund", fields: [companyId,refundEntryId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ purchaseItemId String @db.Uuid
+ userId String @db.Uuid
+ action String
+ quantity Decimal @db.Decimal(18,3)
+ amount Decimal @db.Decimal(19,2)
+ reason String
+ status String @default("OPEN")
+ resolution String?
+ resolvedAt DateTime? @db.Timestamptz(3)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ company Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+ item PurchaseOrderItem @relation(fields: [companyId,purchaseItemId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+ user User @relation(fields: [companyId,userId], references: [companyId,id], onDelete: Restrict, onUpdate: NoAction)
+ @@index([companyId,purchaseItemId,createdAt])
+}
+
+model StaffAdvanceAllocation {
+ id String @id @default(uuid()) @db.Uuid
+ companyId String @db.Uuid
+ userId String @db.Uuid
+ advanceEntryId String @db.Uuid
+ salaryEntryId String @db.Uuid
+ salarySettlementId String @db.Uuid
+ amount Decimal @db.Decimal(19,2)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ company Company @relation(fields:[companyId],references:[id],onDelete:Restrict,onUpdate:NoAction)
+ user User @relation(fields:[companyId,userId],references:[companyId,id],onDelete:Restrict,onUpdate:NoAction)
+ advance FinancialEntry @relation("StaffAdvanceSource",fields:[companyId,advanceEntryId],references:[companyId,id],onDelete:Restrict,onUpdate:NoAction)
+ salary FinancialEntry @relation("StaffAdvanceTarget",fields:[companyId,salaryEntryId],references:[companyId,id],onDelete:Restrict,onUpdate:NoAction)
+ settlement FinancialSettlement @relation(fields:[companyId,salarySettlementId],references:[companyId,id],onDelete:Restrict,onUpdate:NoAction)
+ @@index([companyId,advanceEntryId])
+ @@index([companyId,salaryEntryId])
+}

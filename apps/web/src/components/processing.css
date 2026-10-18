@@ -1,0 +1,53 @@
+.erp-processing {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #d6d0d3;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 15px 60px #20263330;
+  color: #414a56;
+  width: min(260px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+}
+.erp-processing::backdrop {
+  background: #eef0f3aa;
+  cursor: wait;
+}
+.erp-processing-content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 13px;
+  padding: 30px 20px;
+  cursor: wait;
+}
+.erp-processing-content strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.erp-processing-content > span:last-child {
+  font-size: 11px;
+  color: #7a828d;
+}
+.erp-processing-ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #ece5e8;
+  border-top-color: #91535f;
+  border-right-color: #c3a464;
+  border-radius: 50%;
+  animation: erp-processing-spin 0.85s linear infinite;
+}
+@keyframes erp-processing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .erp-processing-ring {
+    animation: none;
+    border-top-color: #91535f;
+  }
+}

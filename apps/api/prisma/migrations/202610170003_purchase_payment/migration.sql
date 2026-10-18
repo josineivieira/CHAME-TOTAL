@@ -1,0 +1,15 @@
+ALTER TABLE "PurchaseOrder" ADD COLUMN "paymentMode" TEXT NOT NULL DEFAULT 'LEGACY', ADD COLUMN "paymentMethod" TEXT, ADD COLUMN "paymentEntryId" UUID, ADD COLUMN "paidAt" TIMESTAMPTZ(3);
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_paymentMode_check" CHECK ("paymentMode" IN ('LEGACY','PREPAID'));
+CREATE UNIQUE INDEX "PurchaseOrder_paymentEntryId_key" ON "PurchaseOrder"("paymentEntryId");
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_companyId_paymentEntryId_fkey" FOREIGN KEY ("companyId","paymentEntryId") REFERENCES "TreasuryEntry"("companyId","id") ON DELETE RESTRICT ON UPDATE NO ACTION;
+ALTER TABLE "PurchaseOrderItem" ADD COLUMN "cancelledQuantity" DECIMAL(18,3) NOT NULL DEFAULT 0;
+ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "PurchaseOrderItem_cancelled_check" CHECK ("cancelledQuantity">=0 AND "cancelledQuantity"+"receivedQuantity"<="quantity");
+ALTER TABLE "PurchaseIssue" ADD COLUMN "refundEntryId" UUID, ADD COLUMN "refundMethod" TEXT;
+CREATE UNIQUE INDEX "PurchaseIssue_refundEntryId_key" ON "PurchaseIssue"("refundEntryId");
+ALTER TABLE "PurchaseIssue" ADD CONSTRAINT "PurchaseIssue_companyId_refundEntryId_fkey" FOREIGN KEY ("companyId","refundEntryId") REFERENCES "TreasuryEntry"("companyId","id") ON DELETE RESTRICT ON UPDATE NO ACTION;
+CREATE UNIQUE INDEX "PurchaseOrder_companyId_paymentEntryId_key" ON "PurchaseOrder"("companyId","paymentEntryId");
+CREATE UNIQUE INDEX "PurchaseIssue_companyId_refundEntryId_key" ON "PurchaseIssue"("companyId","refundEntryId");
+ALTER TABLE "TreasuryEntry" DROP CONSTRAINT "TreasuryEntry_kind_check", DROP CONSTRAINT "TreasuryEntry_check";
+ALTER TABLE "TreasuryEntry" ADD CONSTRAINT "TreasuryEntry_kind_check" CHECK ("kind" IN ('MANUAL','REVERSAL','PURCHASE_PAYMENT','PURCHASE_REFUND'));
+ALTER TABLE "TreasuryEntry" ADD CONSTRAINT "TreasuryEntry_check" CHECK (("kind" IN ('MANUAL','PURCHASE_PAYMENT','PURCHASE_REFUND') AND "reversesId" IS NULL) OR ("kind"='REVERSAL' AND "reversesId" IS NOT NULL));
+ALTER TABLE "TreasuryEntry" ADD CONSTRAINT "TreasuryEntry_purchase_sign_check" CHECK (("kind"<>'PURCHASE_PAYMENT' OR "amount"<0) AND ("kind"<>'PURCHASE_REFUND' OR "amount">0));

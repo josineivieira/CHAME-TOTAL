@@ -1,0 +1,44 @@
+{
+  "name": "chame-total",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web \"npm run dev -w @chame/api\" \"npm run dev -w @chame/web\"",
+    "build": "npm run build -w @chame/shared && npm run generate -w @chame/api && npm run build -w @chame/api && npm run build -w @chame/web",
+    "typecheck": "npm run build -w @chame/shared && npm run generate -w @chame/api && npm run typecheck --workspaces --if-present",
+    "test": "npm run build -w @chame/shared && npm run test -w @chame/api",
+    "test:integration": "npm run test:integration -w @chame/api",
+    "lint": "eslint apps packages scripts --ignore-pattern '**/generated/**' --ignore-pattern '**/dist/**'",
+    "db:generate": "npm run generate -w @chame/api",
+    "db:migrate": "npm run migrate -w @chame/api",
+    "admin:create": "npm run admin:create -w @chame/api",
+    "format": "prettier --write apps/api/src apps/web/src packages/shared/src apps/api/scripts apps/api/test scripts *.md *.json .github infrastructure --ignore-path .gitignore",
+    "check:repository": "node scripts/check-repository.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.1",
+    "typescript-eslint": "^8.48.0",
+    "typescript": "5.9.3",
+    "@playwright/test": "^1.56.1",
+    "prettier": "^3.6.2"
+  },
+  "overrides": {
+    "@nestjs/swagger": {
+      "js-yaml": "5.4.3"
+    },
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
+  }
+}

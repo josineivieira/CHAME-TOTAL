@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.xlsx binary
+# Preserve exactly the bytes of migrations already applied to PostgreSQL.
+apps/api/prisma/migrations/202610140001_initial/migration.sql -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

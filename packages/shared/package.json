@@ -1,0 +1,25 @@
+{
+    "name":  "@chame/shared",
+    "version":  "0.1.0",
+    "private":  true,
+    "main":  "dist/index.js",
+    "types":  "dist/index.d.ts",
+    "scripts":  {
+                    "build":  "tsc -p tsconfig.json \u0026\u0026 esbuild src/index.ts --format=esm --platform=neutral --packages=external --outfile=dist/index.mjs",
+                    "typecheck":  "tsc --noEmit -p tsconfig.json"
+                },
+    "dependencies":  {
+                         "zod":  "^4.1.13",
+                         "decimal.js":  "^10.6.0"
+                     },
+    "exports":  {
+                    ".":  {
+                              "require":  "./dist/index.js",
+                              "types":  "./dist/index.d.ts",
+                              "import":  "./dist/index.mjs"
+                          }
+                },
+    "devDependencies":  {
+                            "esbuild":  "0.28.2"
+                        }
+}

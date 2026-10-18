@@ -1,0 +1,252 @@
+.brand-access.cinema-access {
+  min-height: 100svh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  color: #f4e6d8;
+  background: radial-gradient(ellipse at 50% 25%, #4e332940, transparent 55%), #191513;
+  isolation: isolate;
+}
+.login-composition {
+  width: min(100%, 290px);
+  animation: login-reveal 0.65s ease-out both;
+}
+.brand-access[data-opening='true'] .login-composition {
+  opacity: 0;
+  animation: none;
+}
+.login-signature {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.login-signature img {
+  display: block;
+  width: 144px;
+  height: 144px;
+  object-fit: contain;
+}
+.access-side,
+.access-content {
+  width: 100%;
+}
+.access-heading h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.access-heading-line {
+  display: none;
+}
+.access-form > label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.15px;
+  color: #c2aa97;
+}
+.access-form input {
+  display: block;
+  width: 100%;
+  min-height: 36px;
+  height: 36px;
+  padding: 7px 0;
+  margin-top: 3px;
+  border: 0;
+  border-bottom: 1px solid #59463a;
+  border-radius: 0;
+  background: transparent;
+  color: #f5e5d7;
+  font-size: 13px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.access-form input:focus {
+  outline: none;
+  border-color: #d6a47d;
+  box-shadow: 0 1px 0 #d6a47d;
+}
+.access-form input::placeholder {
+  color: #7e695b;
+  font-size: 10px;
+}
+.access-form input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 100px #191513 inset;
+  -webkit-text-fill-color: #f5e5d7;
+}
+.access-password {
+  position: relative;
+  display: block;
+}
+.access-password input {
+  padding-right: 30px;
+}
+.access-form .access-eye {
+  position: absolute;
+  right: 0;
+  bottom: 5px;
+  width: 26px;
+  min-height: 26px;
+  padding: 3px;
+  background: transparent;
+  border: 0;
+  color: #ac8a72;
+}
+.access-form .access-submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  margin-top: 21px;
+  padding: 11px 15px;
+  background: linear-gradient(110deg, #c29471, #e7bf9b 55%, #bd8c69);
+  border: 1px solid #d5a77f;
+  border-radius: 3px;
+  color: #2f2119;
+  font-size: 12px;
+  font-weight: 600;
+  transition: filter 0.2s;
+}
+.access-form .access-submit:hover {
+  filter: brightness(1.1);
+}
+.access-content > .link,
+.access-content > a {
+  display: inline-block;
+  padding: 5px 0;
+  margin-top: 12px;
+  min-height: 24px;
+  border: 0;
+  background: transparent;
+  color: #a28a76;
+  font-size: 10px;
+  font-weight: 400;
+}
+.access-content > .link:hover,
+.access-content > a:hover {
+  color: #e2bc9a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.access-content .message {
+  font-size: 11px;
+  padding: 8px 10px;
+}
+.brand-opening {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #191513;
+  animation: opening-fade 2.7s both;
+}
+.opening-logo {
+  display: block;
+  position: relative;
+  width: min(340px, 64vw, 65svh);
+  aspect-ratio: 1;
+  object-fit: contain;
+  animation: logo-arrival 2.7s cubic-bezier(0.2, 0.65, 0.2, 1) both;
+}
+.opening-light {
+  position: absolute;
+  width: min(650px, 100vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #b476462b, transparent 65%);
+  animation: intro-light 2.7s both;
+}
+@keyframes logo-arrival {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.68);
+    filter: blur(9px);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  64% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.5);
+    filter: blur(0);
+  }
+}
+@keyframes intro-light {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  35%,
+  65% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+@keyframes opening-fade {
+  0%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes login-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-height: 620px) {
+  .brand-access.cinema-access {
+    padding: 16px 24px;
+  }
+  .login-signature {
+    margin-bottom: 12px;
+  }
+  .login-signature img {
+    width: 110px;
+    height: 110px;
+  }
+  .access-form > label {
+    margin-bottom: 11px;
+  }
+  .access-form .access-submit {
+    margin-top: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cinema-access *,
+  .cinema-access *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+  .brand-opening {
+    display: none;
+  }
+  .brand-access[data-opening='true'] .login-composition {
+    opacity: 1;
+  }
+}
