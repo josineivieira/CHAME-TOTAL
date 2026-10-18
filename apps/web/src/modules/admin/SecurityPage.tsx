@@ -18,6 +18,7 @@ export function SecurityPage() {
   const sessions = useQuery({ queryKey: ['sessions'], queryFn: () => api<Row[]>('auth/sessions') });
   async function start() {
     setBusy(true);
+    setError(undefined);
     try {
       setSetup(await api('auth/mfa/setup', { method: 'POST', body: {} }));
     } catch (err) {
@@ -57,7 +58,7 @@ export function SecurityPage() {
     }
   }
   return (
-    <>
+    <div className="security-page notranslate" translate="no">
       <Title title="Segurança e sessões" />
       <Feedback error={error ?? sessions.error} />
       {user.mfaRequired && !user.mfaEnabled && (
@@ -144,6 +145,6 @@ export function SecurityPage() {
           ]}
         />
       </section>
-    </>
+    </div>
   );
 }
