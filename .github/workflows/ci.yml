@@ -41,7 +41,7 @@ jobs:
       - run: npm exec -- playwright install --with-deps chromium
       - run: npm run test:e2e --workspace @chame/api
       - run: npm audit --audit-level=moderate
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: qa-screenshots
